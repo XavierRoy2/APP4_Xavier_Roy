@@ -19,4 +19,14 @@ public enum TypeCircuit {
     public String getNOM() {
         return NOM;
     }
+
+    // Autre méthode
+    public static TypeCircuit lireJson(String nom) throws IllegalArgumentException {
+        return switch (nom) {
+            case "serie" -> TypeCircuit.SERIE;
+            case "parallele" -> TypeCircuit.PARALLELE;
+            case "resistance" -> TypeCircuit.RESISTANCE;
+            case null, default -> throw new IllegalArgumentException("Type de circuit impossible");
+        };
+    }
 }
