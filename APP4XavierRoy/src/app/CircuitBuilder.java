@@ -1,78 +1,84 @@
 package app;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import electronique.CircuitParallele;
+import electronique.CircuitSerie;
 import electronique.Composant;
+import electronique.Resistance;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class CircuitBuilder {
 
+    private static final char fSep = File.separatorChar;
+    private static final String[] pathIn = {
+            System.getProperty("user.dir") + fSep + "APP4XavierRoy" + fSep + "src" + fSep + "donnees" + fSep + "fichiers_json" + fSep + "complexe_industriel_zone_nord.json",
+            System.getProperty("user.dir") + fSep + "APP4XavierRoy" + fSep + "src" + fSep + "donnees" + fSep + "fichiers_json" + fSep + "eclairage_public_quartier.json",
+            System.getProperty("user.dir") + fSep + "APP4XavierRoy" + fSep + "src" + fSep + "donnees" + fSep + "fichiers_json" + fSep + "reseau_secours_hopital.json"
+    };
+
     public CircuitBuilder(){}
 
-    public Composant construireCircuit(String fichier) {
+    public Composant construireCircuit(String cheminFichier) {
+        List<Composant> listeComposants = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            JsonNode donneesComposants = mapper.readTree(new File(cheminFichier));
+            if (donneesComposants.get("type").asText().equals("resistance")) {
+                return new Resistance(donneesComposants.get("valeur").asDouble());
+            } else {
+                for (int i = 0; i < donneesComposants.size(); i++) {
+                    listeComposants.add(lireComposant(donneesComposants.get(i)));
+                }
+                switch (donneesComposants.get("type").asText()) {
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace(System.err);
+        }
         return null;
     }
 
-    private <JsonNode> Composant lireComposant(JsonNode composant) {
-
-      return null;
+    private Composant lireComposant(JsonNode composant) throws IllegalArgumentException {
+        if (composant == null) {
+            throw new IllegalArgumentException("Code JSON invalide");
+        } else {
+            String type = composant.get("type").asText();
+            switch (type) {
+                case "resistance":
+                    return new Resistance(composant.get("valeur").asDouble());
+                case "serie":
+                    List<Composant> composantsSeries = new ArrayList<>();
+                    for (int i = 0; i < composant.size(); i++) {
+                        composantsSeries.add(lireComposant(composant.get(i)));
+                    }
+                    return new CircuitSerie(composantsSeries);
+                case "parallele":
+                    List<Composant> composantsParralleles = new ArrayList<>();
+                    for (int i = 0; i < composant.size(); i++) {
+                        composantsParralleles.add(lireComposant(composant.get(i)));
+                    }
+                    return new CircuitParallele(composantsParralleles);
+                default:
+                    throw new IllegalArgumentException("Type de circuit invalide");
+            }
+        }
     }
 
-    public static String[] separerElementsJson(String composants) {
-        if (composants != null) {
-            int nbParanthesesOuvertes;
-            int nbParanthesesFermees;
-            int nbCrochetsOuverts;
-            int nbCrochetsFermes;
-            int debut;
-            ArrayList<String> elements = new ArrayList<>();
-            String[] lignes = composants.split("\n");
-            String composant;
-
-            composant = "";
-            debut = 0;
-            nbParanthesesOuvertes = 0;
-            nbParanthesesFermees = 0;
-            nbCrochetsOuverts = 0;
-            nbCrochetsFermes = 0;
-            do {
-                if (lignes[debut].contains("[")) {
-                    nbCrochetsOuverts++;
-                }
-                debut++;
-            } while (lignes[debut].contains("["));
-            int i = debut;
-            do {
-                lignes[i] = lignes[i].trim();
-                if (lignes[debut].contains("[")) {
-                    nbCrochetsOuverts++;
-                }
-                if (lignes[debut].contains("]")) {
-                    nbCrochetsFermes++;
-                }
-                if (lignes[i].contains("{")) {
-                    nbParanthesesOuvertes++;
-                    if (lignes[i].length() != 1) {
-                        composant += lignes[i] + "\n";
-                        if (lignes[i].contains("}")) {
-                            nbParanthesesFermees++;
-                        }
-                    }
-                } else if (lignes[i].contains("}")) {
-                    nbParanthesesFermees++;
-                } else {
-                    composant += lignes[i] + "\n";
-                }
-                if (nbParanthesesOuvertes == nbParanthesesFermees) {
-                    elements.add(composant);
-                    composant = "";
-                    nbParanthesesOuvertes = 0;
-                    nbParanthesesFermees = 0;
-                }
-                i++;
-            } while (nbCrochetsOuverts != nbCrochetsFermes);
-            return (String[]) elements.toArray();
+    public static String getPathIn(String nom) {
+        if (nom == null) {
+            throw new IllegalArgumentException("réseau impossible");
         } else {
-            throw new IllegalArgumentException("code JSON invalide");
+            return switch (nom.toLowerCase()) {
+                case "complexe industriel de la zone nord" -> pathIn[0];
+                case "éclairage public du quartier" -> pathIn[1];
+                case "réseau de secours de l'hôpital" -> pathIn[2];
+                default -> throw new IllegalArgumentException("réseau introuvable");
+            };
         }
     }
 }
