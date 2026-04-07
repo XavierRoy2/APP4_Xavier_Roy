@@ -15,15 +15,12 @@ import java.util.List;
 public class CircuitBuilder {
 
     private static final char fSep = File.separatorChar;
-    private static final String[] pathIn = {
-            System.getProperty("user.dir") + fSep + "APP4XavierRoy" + fSep + "src" + fSep + "donnees" + fSep + "fichiers_json" + fSep + "complexe_industriel_zone_nord.json",
-            System.getProperty("user.dir") + fSep + "APP4XavierRoy" + fSep + "src" + fSep + "donnees" + fSep + "fichiers_json" + fSep + "eclairage_public_quartier.json",
-            System.getProperty("user.dir") + fSep + "APP4XavierRoy" + fSep + "src" + fSep + "donnees" + fSep + "fichiers_json" + fSep + "reseau_secours_hopital.json"
-    };
+    private static final String pathIn = System.getProperty("user.dir") + fSep + "APP4XavierRoy" + fSep + "src" + fSep + "donnees" + fSep + "fichiers_json";
+    private static final String[] fichiersJson = determinerFichierJson(new File(pathIn));
 
     public CircuitBuilder(){}
 
-    public Composant construireCircuit(String cheminFichier) {
+    public static Composant construireCircuit(String cheminFichier) {
         List<Composant> listeComposants = new ArrayList<>();
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -43,7 +40,7 @@ public class CircuitBuilder {
         return null;
     }
 
-    private Composant lireComposant(JsonNode composant) throws IllegalArgumentException {
+    private static Composant lireComposant(JsonNode composant) throws IllegalArgumentException {
         if (composant == null) {
             throw new IllegalArgumentException("Code JSON invalide");
         } else {
@@ -69,16 +66,40 @@ public class CircuitBuilder {
         }
     }
 
-    public static String getPathIn(String nom) {
-        if (nom == null) {
-            throw new IllegalArgumentException("réseau impossible");
+    public static String getFichierJson(int numero) throws IllegalArgumentException {
+        if (numero >= 1 || numero < fichiersJson.length) {
+            return fichiersJson[numero-1];
         } else {
-            return switch (nom.toLowerCase()) {
-                case "complexe industriel de la zone nord" -> pathIn[0];
-                case "éclairage public du quartier" -> pathIn[1];
-                case "réseau de secours de l'hôpital" -> pathIn[2];
-                default -> throw new IllegalArgumentException("réseau introuvable");
-            };
+            throw new IllegalArgumentException("réseau introuvable");
         }
+    }
+
+    private static String[] determinerFichierJson(File dossier) throws RuntimeException {
+        List<String> cheminFichiersJson = new ArrayList<>();
+        if (dossier.isDirectory()) {
+            File[] listeFichiersJson = dossier.listFiles();
+            if (listeFichiersJson == null) {
+                throw new RuntimeException("Dossier JSON inexistant");
+            } else {
+                for (File file : listeFichiersJson) {
+                    if (!file.isDirectory()) {
+                        cheminFichiersJson.add(file.getAbsolutePath());
+                    }
+                }
+            }
+            return (String[]) cheminFichiersJson.toArray();
+        } else if (dossier.isAbsolute() && dossier.getAbsolutePath().endsWith(".json")){
+            return new String[]{dossier.getAbsolutePath()};
+        } else {
+            throw new IllegalArgumentException("Dossier de JSON introuvable");
+        }
+    }
+
+    public static String getPathIn(){
+        return pathIn;
+    }
+
+    public static String[] getFichiersJson() {
+        return fichiersJson;
     }
 }
