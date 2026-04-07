@@ -1,5 +1,7 @@
 package app;
 
+import electronique.Composant;
+
 import java.util.Scanner;
 
 public class CircuitApp {
@@ -22,22 +24,20 @@ public class CircuitApp {
             }
         }
         do {
-          System.out.println("\nVoulez-vous voir un circuit ?");
-          reponseUtilisateur = SC.next();
-          arretInterface = reponseUtilisateur.equalsIgnoreCase("oui");
-          if (!arretInterface) {
-              boolean numeroLegal;
-              do {
-              System.out.println("Entrer le numéro du circuit que vous voulez voir :");
-                  numeroLegal = false;
-                  numeroCircuit = SC.next();
-                  Exception probleme = estUnNumeroLegal(numeroCircuit, fichiersLecture);
-                  if (probleme == null) {
-                      numeroLegal = true;
-                  } else {
-                      System.out.println(probleme.getMessage());
-                  }
-              } while (!numeroLegal);
+            Composant circuitRecherche;
+            System.out.println("\nVoulez-vous voir un circuit ?");
+            reponseUtilisateur = SC.next();
+            arretInterface = reponseUtilisateur.equalsIgnoreCase("oui");
+            if (!arretInterface) {
+                System.out.println("Entrer le numéro du circuit que vous voulez voir :");
+                numeroCircuit = SC.next();
+                Exception probleme = estUnNumeroLegal(numeroCircuit, fichiersLecture);
+                if (probleme == null) {
+                    int numeroInt = Integer.parseInt(numeroCircuit);
+                    circuitRecherche = CircuitBuilder.construireCircuit(fichiersLecture[numeroInt-1]);
+                } else {
+                    System.out.println(probleme.getMessage());
+                }
           }
         } while (!arretInterface);
     }
