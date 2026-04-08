@@ -21,7 +21,7 @@ public class CircuitParallele extends Circuit{
     public double calculerResistance() {
         double denominateur = 0;
         for (Composant composant : this.composants) {
-            denominateur += composant.calculerResistance();
+            denominateur += 1/composant.calculerResistance();
         }
         return 1/denominateur;
     }

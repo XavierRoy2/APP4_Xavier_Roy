@@ -45,9 +45,10 @@ public class CircuitApp {
                     } catch (IOException e) {
                         probleme = e;
                     }
+                    double resistance = circuitRecherche.calculerResistance();
                     System.out.println("Circuit recherché : " + nomCircuitExact(cheminCircuitRecherche) +
-                            "\nComposants du circuit : " + circuitRecherche.toString() +
-                            "\nRésistance équivalente : " + Composant.afficherResistance(circuitRecherche.calculerResistance()));
+                            "\nComposants du circuit : \n" + circuitRecherche.toString() +
+                            "\nRésistance équivalente : " + Composant.afficherResistance(resistance));
                 } else {
                     System.out.println(probleme.getMessage());
                 }
@@ -55,7 +56,7 @@ public class CircuitApp {
                         "[R] Tester un autre fichier : Relance le cycle de sélection.\n" +
                         "[Q] Quitter : Ferme proprement l'application avec un message de confirmation.");
                 reponseUtilisateur = SC.next();
-                arretInterface = reponseUtilisateur.equalsIgnoreCase("Q");
+                arretInterface = !reponseUtilisateur.equalsIgnoreCase("R");
                 premiereDemande = false;
           }
         } while (!arretInterface);

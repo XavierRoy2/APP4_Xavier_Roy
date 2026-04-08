@@ -28,7 +28,11 @@ public abstract class Circuit extends Composant {
     public String toString(){
         String str = "Type de circuit : " + this.typeCircuit.getNOM();
         for (int i = 0; i < this.composants.size(); i++) {
-            str += "\n      composant " + i  + " : " + this.composants.get(i).toString();
+            Composant composantActuel = this.composants.get(i);
+            switch (composantActuel.getTypeCircuit()) {
+                case RESISTANCE -> str += "\n      composant " + (i + 1)  + " : " + this.composants.get(i).toString();
+                case SERIE,PARALLELE -> str += "\n      composant " + (i + 1)  + " :\n" + this.composants.get(i).toString();
+            }
         }
         return str;
     }

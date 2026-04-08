@@ -57,14 +57,14 @@ public class CircuitBuilder {
                     return new Resistance(composant.get("valeur").asDouble());
                 case "serie":
                     List<Composant> composantsSeries = new ArrayList<>();
-                    for (int i = 0; i < composant.size(); i++) {
-                        composantsSeries.add(lireComposant(composant.get(i)));
+                    for (int i = 0; i < composant.get("composants").size(); i++) {
+                        composantsSeries.add(lireComposant(composant.get("composants").get(i)));
                     }
                     return new CircuitSerie(composantsSeries);
                 case "parallele":
                     List<Composant> composantsParralleles = new ArrayList<>();
-                    for (int i = 0; i < composant.size(); i++) {
-                        composantsParralleles.add(lireComposant(composant.get(i)));
+                    for (int i = 0; i < composant.get("composants").size(); i++) {
+                        composantsParralleles.add(lireComposant(composant.get("composants").get(i)));
                     }
                     return new CircuitParallele(composantsParralleles);
                 default:
