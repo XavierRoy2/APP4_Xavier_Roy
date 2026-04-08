@@ -20,24 +20,31 @@ public class CircuitBuilder {
 
     public CircuitBuilder(){}
 
-    public static Composant construireCircuit(String cheminFichier) {
+    public static Composant construireCircuit(String cheminFichier) throws IOException, IllegalArgumentException {
+        boolean erreur;
         List<Composant> listeComposants = new ArrayList<>();
         ObjectMapper mapper = new ObjectMapper();
+        String typeString;
         try {
             JsonNode donneesComposants = mapper.readTree(new File(cheminFichier));
-            if (donneesComposants.get("type").asText().equals("resistance")) {
+            typeString = donneesComposants.get("circuit").get("type").asText();
+            if ("resistance".equals(typeString)) {
                 return new Resistance(donneesComposants.get("valeur").asDouble());
             } else {
-                for (int i = 0; i < donneesComposants.size(); i++) {
-                    listeComposants.add(lireComposant(donneesComposants.get(i)));
+                for (int i = 0; i < donneesComposants.get("circuit").get("composants").size(); i++) {
+                    JsonNode noyauComposantActuel = donneesComposants.get("circuit").get("composants").get(i);
+                    Composant composantActuel = lireComposant(noyauComposantActuel);
+                    listeComposants.add(composantActuel);
                 }
-                switch (donneesComposants.get("type").asText()) {
-                }
+                return switch (typeString) {
+                    case "serie" -> new CircuitSerie(listeComposants);
+                    case "parallele" -> new CircuitParallele(listeComposants);
+                    default -> throw new IllegalArgumentException("Type de circuit impossible");
+                };
             }
         } catch (IOException e) {
-            e.printStackTrace(System.err);
+            throw e;
         }
-        return null;
     }
 
     private static Composant lireComposant(JsonNode composant) throws IllegalArgumentException {
@@ -87,7 +94,11 @@ public class CircuitBuilder {
                     }
                 }
             }
-            return (String[]) cheminFichiersJson.toArray();
+            String[] retour = new String[cheminFichiersJson.size()];
+            for (int i = 0; i < retour.length; i++) {
+                retour[i] = cheminFichiersJson.get(i);
+            }
+            return retour;
         } else if (dossier.isAbsolute() && dossier.getAbsolutePath().endsWith(".json")){
             return new String[]{dossier.getAbsolutePath()};
         } else {

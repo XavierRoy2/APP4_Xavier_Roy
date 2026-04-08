@@ -47,11 +47,6 @@ public class Resistance extends Composant {
 
     @Override
     public String toString(){
-        return formatDeuxDecimales(this.resistance) + "Ω";
-    }
-
-    public static String formatDeuxDecimales(double resistance){
-        DecimalFormat format = new DecimalFormat(".00");
-        return format.format(resistance);
+        return afficherResistance(this.resistance);
     }
 }
