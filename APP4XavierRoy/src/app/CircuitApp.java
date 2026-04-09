@@ -17,7 +17,7 @@ public class CircuitApp {
         boolean premiereDemande = true;
 
         System.out.println("---------------- Interface en console du programme ----------------");
-        System.out.println("Circuit au format JSON trouvés : ");
+        System.out.println("\nCircuit au format JSON trouvés : ");
         if (fichiersLecture == null || fichiersLecture.length == 0) {
             System.out.println("Oups : aucun fichier JSON trouvé");
         } else {
@@ -29,12 +29,12 @@ public class CircuitApp {
             Composant circuitRecherche = null;
             String cheminCircuitRecherche;
             if (premiereDemande) {
-                System.out.println("\nVoulez-vous voir un circuit ?");
+                System.out.println("\nVoulez-vous tester un fichier ?");
                 reponseUtilisateur = SC.next();
                 arretInterface = !reponseUtilisateur.equalsIgnoreCase("oui");
             }
             if (!arretInterface) {
-                System.out.println("Entrer le numéro du circuit que vous voulez voir :");
+                System.out.println("\nEntrer le numéro du circuit que vous voulez tester :");
                 numeroCircuit = SC.next();
                 Exception probleme = estUnNumeroLegal(numeroCircuit, fichiersLecture);
                 if (probleme == null) {
@@ -43,18 +43,18 @@ public class CircuitApp {
                     try {
                         circuitRecherche = CircuitBuilder.construireCircuit(fichiersLecture[numeroInt-1]);
                     } catch (IOException e) {
-                        probleme = e;
+                        System.out.println("\nErreur : " + e.getMessage());
                     }
                     double resistance = circuitRecherche.calculerResistance();
-                    System.out.println("Circuit recherché : " + nomCircuitExact(cheminCircuitRecherche) +
+                    System.out.println("\nCircuit recherché : " + nomCircuitExact(cheminCircuitRecherche) +
                             "\nComposants du circuit : \n" + circuitRecherche.toString() +
                             "\nRésistance équivalente : " + Composant.afficherResistance(resistance));
                 } else {
-                    System.out.println(probleme.getMessage());
+                    System.out.println("\nErreur : " + probleme.getMessage());
                 }
-                System.out.println("Voulez vous voir un autre circuit ?\n" +
-                        "[R] Tester un autre fichier : Relance le cycle de sélection.\n" +
-                        "[Q] Quitter : Ferme proprement l'application avec un message de confirmation.");
+                System.out.println("\nVoulez vous tester un autre fichier ?\n" +
+                        "[R] Tester un autre fichier\n" +
+                        "[Q] Quitter");
                 reponseUtilisateur = SC.next();
                 arretInterface = !reponseUtilisateur.equalsIgnoreCase("R");
                 premiereDemande = false;
